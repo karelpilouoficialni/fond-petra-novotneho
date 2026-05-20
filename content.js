@@ -165,15 +165,15 @@
             if (pd) pd.textContent = t.prijmy.description;
             var pt = document.getElementById('prijmy-page-text');
             if (pt) pt.textContent = t.prijmy.pageText;
-            buildTransactionsTable(tx);
+            buildSplitTxTables(tx);
             var bd = document.getElementById('balance-display');
             if (bd) {
-                var totalIncome = 0, totalExpense = 0;
+                var totalInc = 0, totalExp = 0;
                 tx.forEach(function (t) {
-                    if (t.amount >= 0) totalIncome += t.amount;
-                    else totalExpense += Math.abs(t.amount);
+                    if (t.amount >= 0) totalInc += t.amount;
+                    else totalExp += Math.abs(t.amount);
                 });
-                var bal = totalIncome - totalExpense;
+                var bal = totalInc - totalExp;
                 bd.textContent = (bal >= 0 ? '+' : '\u2013') + Math.abs(bal).toLocaleString() + ' K\u010d';
                 bd.style.color = bal >= 0 ? '#2b6cb0' : '#e53e3e';
             }
@@ -214,73 +214,49 @@
         }
     }
 
-    function buildTransactionsTable(transactions) {
-        var tbody = document.getElementById('transactions-body');
-        var tf = document.getElementById('transactions-footer');
-        if (!tbody) return;
+    function buildSplitTxTables(transactions) {
+        var incomeBody = document.getElementById('income-body');
+        var incomeFoot = document.getElementById('income-footer');
+        var expenseBody = document.getElementById('expense-body');
+        var expenseFoot = document.getElementById('expense-footer');
 
-        tbody.innerHTML = '';
-        var incomeTotal = 0;
-        var expenseTotal = 0;
+        var incomeTotal = 0, expenseTotal = 0;
 
+        var incomeRows = [], expenseRows = [];
         transactions.forEach(function (tx) {
-            var isIncome = tx.amount >= 0;
-            if (isIncome) incomeTotal += tx.amount;
-            else expenseTotal += Math.abs(tx.amount);
-
-            var tr = document.createElement('tr');
-            var td1 = document.createElement('td');
-            td1.textContent = tx.date;
-            var td2 = document.createElement('td');
-            td2.textContent = tx.description;
-            var td3 = document.createElement('td');
-            td3.className = isIncome ? 'amount-positive' : 'amount-negative';
-            td3.textContent = (isIncome ? '+' : '\u2013') + Math.abs(tx.amount).toLocaleString() + ' K\u010d';
-            tr.appendChild(td1);
-            tr.appendChild(td2);
-            tr.appendChild(td3);
-            tbody.appendChild(tr);
+            if (tx.amount >= 0) {
+                incomeTotal += tx.amount;
+                incomeRows.push(tx);
+            } else {
+                expenseTotal += Math.abs(tx.amount);
+                expenseRows.push(tx);
+            }
         });
 
-        if (tf) {
-            var balance = incomeTotal - expenseTotal;
-            tf.innerHTML = '';
-            var tr1 = document.createElement('tr');
-            var th0 = document.createElement('th');
-            var th1 = document.createElement('th');
-            th1.textContent = 'P\u0159\u00edjmy celkem';
-            var th2 = document.createElement('th');
-            th2.className = 'amount-positive';
-            th2.textContent = '+' + incomeTotal.toLocaleString() + ' K\u010d';
-            tr1.appendChild(th0);
-            tr1.appendChild(th1);
-            tr1.appendChild(th2);
-            tf.appendChild(tr1);
-
-            var tr2 = document.createElement('tr');
-            var th00 = document.createElement('th');
-            var th11 = document.createElement('th');
-            th11.textContent = 'V\u00fddaje celkem';
-            var th22 = document.createElement('th');
-            th22.className = 'amount-negative';
-            th22.textContent = '\u2013' + expenseTotal.toLocaleString() + ' K\u010d';
-            tr2.appendChild(th00);
-            tr2.appendChild(th11);
-            tr2.appendChild(th22);
-            tf.appendChild(tr2);
-
-            var tr3 = document.createElement('tr');
-            var th000 = document.createElement('th');
-            var th111 = document.createElement('th');
-            th111.textContent = 'Z\u016fstatek';
-            var th222 = document.createElement('th');
-            th222.className = balance >= 0 ? 'amount-positive' : 'amount-negative';
-            th222.textContent = (balance >= 0 ? '+' : '\u2013') + Math.abs(balance).toLocaleString() + ' K\u010d';
-            tr3.appendChild(th000);
-            tr3.appendChild(th111);
-            tr3.appendChild(th222);
-            tf.appendChild(tr3);
+        function fillTable(tbody, tfoot, rows, isIncome) {
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            rows.forEach(function (tx) {
+                var tr = document.createElement('tr');
+                tr.innerHTML =
+                    '<td>' + tx.date + '</td>' +
+                    '<td>' + tx.description + '</td>' +
+                    '<td class="' + (isIncome ? 'amount-positive' : 'amount-negative') + '">' +
+                        (isIncome ? '+' : '\u2013') + Math.abs(tx.amount).toLocaleString() + ' K\u010d' +
+                    '</td>';
+                tbody.appendChild(tr);
+            });
+            if (tfoot) {
+                var sum = rows.reduce(function (s, tx) { return s + Math.abs(tx.amount); }, 0);
+                tfoot.innerHTML =
+                    '<tr><th></th><th>' + (isIncome ? 'P\u0159\u00edjmy' : 'V\u00fddaje') + ' celkem</th>' +
+                    '<th class="' + (isIncome ? 'amount-positive' : 'amount-negative') + '">' +
+                        (isIncome ? '+' : '\u2013') + sum.toLocaleString() + ' K\u010d</th></tr>';
+            }
         }
+
+        fillTable(incomeBody, incomeFoot, incomeRows, true);
+        fillTable(expenseBody, expenseFoot, expenseRows, false);
     }
 
     window.NGFPMPN = {
@@ -296,7 +272,7 @@
         saveTexts: saveTexts,
         saveTransactions: saveTransactions,
         applyToPage: applyToPage,
-        buildTransactionsTable: buildTransactionsTable
+        buildSplitTxTables: buildSplitTxTables
     };
 
     if (document.readyState === 'loading') {
