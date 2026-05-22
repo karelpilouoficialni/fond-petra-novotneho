@@ -22,9 +22,9 @@ nav {
 
 nav .logo {
     color: #fff;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 700;
-    max-width: 400px;
+    max-width: 300px;
 }
 
 nav ul {
@@ -92,7 +92,7 @@ nav ul li a.active {
 }
 
 .content {
-    max-width: 900px;
+    max-width: 960px;
     margin: 2rem auto;
     padding: 0 2rem;
 }
@@ -127,6 +127,8 @@ nav ul li a.active {
     font-size: 1.1rem;
     transition: transform 0.2s, box-shadow 0.2s;
     box-shadow: 0 4px 12px rgba(56, 161, 105, 0.4);
+    border: none;
+    cursor: pointer;
 }
 
 .btn:hover {
@@ -176,4 +178,68 @@ footer {
 
 footer p {
     margin: 0.3rem 0;
+}
+
+.teacher {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.teacher:last-child {
+    border-bottom: none;
+}
+
+.teacher-photo {
+    width: 200px;
+    height: 200px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #e2e8f0;
+}
+
+.teacher-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.teacher-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.teacher-info h3 {
+    color: #1a365d;
+    font-size: 1.3rem;
+    margin-bottom: 0.3rem;
+}
+
+.teacher-info .subject {
+    color: #2b6cb0;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.teacher-info p {
+    color: #4a5568;
+    margin-bottom: 0.8rem;
+    line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+    .teacher {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .teacher-photo {
+        width: 150px;
+        height: 150px;
+    }
 }
